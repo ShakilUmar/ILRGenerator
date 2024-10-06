@@ -26,7 +26,7 @@ const LearnerDetails = () => {
       ActualEndDate: ''
     }))
   );
-
+  
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleChange = (field, value) => {
@@ -37,6 +37,7 @@ const LearnerDetails = () => {
 
   const isFormValid = () => {
     const {
+      LearnRefNumber,
       ULN,
       FamilyName,
       GivenNames,
@@ -55,6 +56,7 @@ const LearnerDetails = () => {
     const isULNValid = /^\d{10}$/.test(ULN); // Check for 10 digit numeric ULN
 
     return (
+      LearnRefNumber &&
       isULNValid && // Ensure ULN is valid
       FamilyName && 
       GivenNames && 
@@ -86,7 +88,7 @@ const LearnerDetails = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
     }
-  };
+  }; 
 
   const generateXML = () => {
     let xml = `<?xml version="1.0" encoding="utf-8"?>
@@ -235,19 +237,40 @@ const LearnerDetails = () => {
     const blob = new Blob([xml], { type: 'application/xml' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'learner_data.xml';
+
+    const now = new Date();
+    const formattedDate = now.toISOString().split('T')[0].replace(/-/g, ''); // Format as 'yyyyMMdd'
+    const formattedTime = now.toTimeString().split(' ')[0].replace(/:/g, ''); // Format as 'HHmmss'
+
+    link.download = `ILR-${UKPRN}-${academicYear}-${formattedDate}-${formattedTime}-1.xml`;
     link.click();
+
+    navigate('/');
   };
 
-  const handleDateChange = (field, day, month, year) => {
-    const date = `${year}-${month}-${day}`;
-    handleChange(field, date);
+  const handleDateChange = (fieldName, day, month, year) => {
+    const currentData = learners[currentIndex][fieldName] || { day: '', month: '', year: '' };
+  
+    const updatedDay = day || currentData.day;
+    const updatedMonth = month || currentData.month;
+    const updatedYear = year || currentData.year;
+  
+    if (updatedDay && updatedMonth && updatedYear) {
+      const formattedDay = updatedDay.padStart(2, '0');
+      const formattedMonth = updatedMonth.padStart(2, '0');
+      const formattedDate = `${updatedYear}-${formattedMonth}-${formattedDay}`;
+      handleChange(fieldName, formattedDate);
+    }
   };
+  
 
   return (
     <div className="learner-form">
       <h1>Learner {currentIndex + 1} of {numLearners}</h1>
       <form>
+        <label>Learner Reference Number</label>
+        <input type="text" value={learners[currentIndex].LearnRefNumber} onChange={(e) => handleChange('LearnRefNumber', e.target.value)} />
+
         <label>ULN</label>
         <input type="text" value={learners[currentIndex].ULN} onChange={(e) => handleChange('ULN', e.target.value)} />
 
@@ -259,7 +282,7 @@ const LearnerDetails = () => {
 
         <label>Date of Birth</label>
         <div className='date-dropdowns'>
-          <select onChange={(e) => handleDateChange('DateOfBirth', e.target.value, document.getElementById('dob-month').value, document.getElementById('dob-year').value)} id="dob-day">
+        <select onChange={(e) => handleDateChange('DateOfBirth', e.target.value, document.getElementById('dob-month').value, document.getElementById('dob-year').value)} id="dob-day">
             <option value="">Day</option>
             {[...Array(31).keys()].map(day => (
               <option key={day + 1} value={day + 1}>{day + 1}</option>
