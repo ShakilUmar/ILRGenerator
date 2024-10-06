@@ -1,49 +1,75 @@
 .learner-form {
-    max-width: 600px; /* Adjust width as needed */
-    margin: 0 auto; /* Center the form */
-    padding: 20px; /* Add padding around the form */
-    border: 1px solid #ddd; /* Light border for separation */
-    border-radius: 5px; /* Rounded corners */
-    background-color: #f9f9f9; /* Light background color */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  }
-  
-  .learner-section {
-    margin-bottom: 20px; /* Space between different learner sections */
-  }
-  
-  .learner-header {
-    margin-bottom: 10px; /* Space below the header */
-    font-size: 1.5em; /* Larger header font */
-    color: #333; /* Darker text color */
-  }
-  
-  .learner-label {
-    display: block; /* Make labels block elements */
-    margin-bottom: 8px; /* Space below labels */
-  }
-  
-  .learner-input {
-    width: 100%; /* Full width for inputs */
-    padding: 8px; /* Padding inside inputs */
-    margin-bottom: 10px; /* Space below inputs */
-    border: 1px solid #ccc; /* Light border around inputs */
-    border-radius: 4px; /* Rounded corners */
-    font-size: 1em; /* Increase font size */
-  }
-  
-  .generate-button {
-    padding: 10px 15px; /* Button padding */
-    font-size: 1em; /* Button font size */
-    background-color: #28a745; /* Green button color */
-    color: white; /* White text */
-    border: none; /* Remove default border */
-    border-radius: 4px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s; /* Smooth background change */
-  }
-  
-  .generate-button:hover {
-    background-color: #218838; /* Darker green on hover */
-  }
-  
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.learner-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.learner-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.learner-form input[type="text"],
+.learner-form input[type="number"],
+.learner-form select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.date-dropdowns {
+  display: flex;
+  justify-content: space-between;
+}
+
+.date-dropdowns select {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.date-dropdowns select:last-child {
+  margin-right: 0;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+button:disabled {
+  background-color: #ccc;
+}
+
+button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+button:last-child {
+  margin-right: 0;
+}

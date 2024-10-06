@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import './LearnerForm.css'; 
 import { useLocation, useNavigate } from 'react-router-dom';
-import { calculateMonthDifference } from '../helpers/academicYear';
-
+import { convertAcademicYear, calculateMonthDifference } from '../helpers/academicYear';
 
 const LearnerDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { numLearners } = location.state;
+  const { UKPRN, academicYear, numLearners } = location.state;
 
   const [learners, setLearners] = useState(
     Array.from({ length: numLearners }, () => ({
@@ -32,52 +31,45 @@ const LearnerDetails = () => {
 
   const handleChange = (field, value) => {
     const updatedLearners = [...learners];
-
-    // If the field is a date, convert the value to a Date object
-    if (['DateOfBirth', 'StartDate', 'EndDate', 'ActualEndDate'].includes(field)) {
-        updatedLearners[currentIndex][field] = new Date(value);
-    } else {
-        updatedLearners[currentIndex][field] = value;
-    }
+    updatedLearners[currentIndex][field] = value;
     setLearners(updatedLearners);
-};
+  };
 
-const isFormValid = () => {
-  const {
-    ULN,
-    FamilyName,
-    GivenNames,
-    DateOfBirth,
-    StartDate,
-    EndDate,
-    StandardCode,
-    CompletionStatus,
-    Outcome,
-    LearningDeliveryFAMCode,
-    TNP1,
-    TNP2,
-    ActualEndDate
-  } = learners[currentIndex];
+  const isFormValid = () => {
+    const {
+      ULN,
+      FamilyName,
+      GivenNames,
+      DateOfBirth,
+      StartDate,
+      EndDate,
+      StandardCode,
+      CompletionStatus,
+      Outcome,
+      LearningDeliveryFAMCode,
+      TNP1,
+      TNP2,
+      ActualEndDate
+    } = learners[currentIndex];
 
-  const isULNValid = /^\d{10}$/.test(ULN); // Check for 10 digit numeric ULN
+    const isULNValid = /^\d{10}$/.test(ULN); // Check for 10 digit numeric ULN
 
-  return (
-    isULNValid && // Ensure ULN is valid
-    FamilyName && 
-    GivenNames && 
-    DateOfBirth &&
-    StartDate &&
-    EndDate &&
-    StandardCode &&
-    CompletionStatus &&
-    Outcome &&
-    LearningDeliveryFAMCode &&
-    TNP1 &&
-    TNP2 &&
-    ActualEndDate
-  );
-};
-
+    return (
+      isULNValid && // Ensure ULN is valid
+      FamilyName && 
+      GivenNames && 
+      DateOfBirth &&
+      StartDate &&
+      EndDate &&
+      StandardCode &&
+      CompletionStatus &&
+      Outcome &&
+      LearningDeliveryFAMCode &&
+      TNP1 &&
+      TNP2 &&
+      ActualEndDate
+    );
+  };
 
   const handleNext = () => {
     if (!isFormValid()) {
@@ -98,16 +90,16 @@ const isFormValid = () => {
 
   const generateXML = () => {
     let xml = `<?xml version="1.0" encoding="utf-8"?>
-<Message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:test="ESFA/ILR/2023-24">
+<Message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:test="ESFA/ILR/${convertAcademicYear(academicYear)}">
   <Header>
     <CollectionDetails>
       <Collection>ILR</Collection>
-      <Year>2324</Year>
+      <Year>${academicYear}</Year>
       <FilePreparationDate>${new Date().toISOString().split('T')[0]}</FilePreparationDate>
     </CollectionDetails>
     <Source>
       <ProtectiveMarking>OFFICIAL-SENSITIVE-Personal</ProtectiveMarking>
-      <UKPRN>34334</UKPRN>
+      <UKPRN>${UKPRN}</UKPRN>
       <SoftwareSupplier>Software Supplier</SoftwareSupplier>
       <SoftwarePackage>Software Package</SoftwarePackage>
       <Release>Release</Release>
@@ -116,7 +108,7 @@ const isFormValid = () => {
     </Source>
   </Header>
   <LearningProvider>
-    <UKPRN>34334</UKPRN>
+    <UKPRN>${UKPRN}</UKPRN>
   </LearningProvider>`;
 
     learners.forEach((learner) => {
@@ -126,7 +118,7 @@ const isFormValid = () => {
     <ULN>${learner.ULN}</ULN>
     <FamilyName>${learner.FamilyName}</FamilyName>
     <GivenNames>${learner.GivenNames}</GivenNames>
-    <DateOfBirth>${learner.DateOfBirth ? learner.DateOfBirth.toISOString().split('T')[0] : ''}</DateOfBirth>
+    <DateOfBirth>${learner.DateOfBirth}</DateOfBirth>
     <Ethnicity>31</Ethnicity>
     <Sex>F</Sex>
     <LLDDHealthProb>2</LLDDHealthProb>
@@ -158,8 +150,8 @@ const isFormValid = () => {
       <LearnAimRef>ZPROG001</LearnAimRef>
       <AimType>1</AimType>
       <AimSeqNumber>1</AimSeqNumber>
-      <LearnStartDate>${learner.StartDate.toISOString().split('T')[0]}</LearnStartDate>
-      <LearnPlanEndDate>${learner.EndDate.toISOString().split('T')[0]}</LearnPlanEndDate>
+      <LearnStartDate>${learner.StartDate}</LearnStartDate>
+      <LearnPlanEndDate>${learner.EndDate}</LearnPlanEndDate>
       <FundModel>36</FundModel>
       <PHours>324</PHours>
       <OTJActHours>344</OTJActHours>
@@ -168,11 +160,11 @@ const isFormValid = () => {
       <DelLocPostCode>WS15 3JQ</DelLocPostCode>
       <EPAOrgID>EPA0061</EPAOrgID>
       <CompStatus>${learner.CompletionStatus}</CompStatus>
-      <LearnActEndDate>2024-08-15</LearnActEndDate>
-      <Outcome>${learner.Outcome}</Outcome>
-      <AchDate>${learner.EndDate.toISOString().split('T')[0]}</AchDate>
+      <LearnActEndDate>${learner.ActualEndDate}</LearnActEndDate>
+      <Outcome>1</Outcome>
+      <AchDate>${learner.EndDate}</AchDate>
       <SWSupAimId>0c29a200c9d14749a90ce04a5b202ca6</SWSupAimId>
-       <LearningDeliveryFAM>
+      <LearningDeliveryFAM>
         <LearnDelFAMType>SOF</LearnDelFAMType>
         <LearnDelFAMCode>105</LearnDelFAMCode>
       </LearningDeliveryFAM>
@@ -183,8 +175,8 @@ const isFormValid = () => {
       <LearningDeliveryFAM>
         <LearnDelFAMType>ACT</LearnDelFAMType>
         <LearnDelFAMCode>${learner.LearningDeliveryFAMCode}</LearnDelFAMCode>
-        <LearnDelFAMDateFrom>${learner.StartDate.toISOString().split('T')[0]}</LearnDelFAMDateFrom>
-        <LearnDelFAMDateTo>${learner.EndDate.toISOString().split('T')[0]}</LearnDelFAMDateTo>
+        <LearnDelFAMDateFrom>${learner.StartDate}</LearnDelFAMDateFrom>
+        <LearnDelFAMDateTo>${learner.EndDate}</LearnDelFAMDateTo>
       </LearningDeliveryFAM>
       <AppFinRecord>
         <AFinType>TNP</AFinType>
@@ -196,7 +188,7 @@ const isFormValid = () => {
         <AFinType>PMR</AFinType>
         <AFinCode>1</AFinCode>
         <AFinDate>2023-08-15</AFinDate>
-        <AFinAmount>${learner.TNP1/calculateMonthDifference(learner.StartDate, learner.EndDate)}</AFinAmount>
+        <AFinAmount>${learner.TNP1 / calculateMonthDifference(learner.StartDate, learner.EndDate)}</AFinAmount>
       </AppFinRecord>
       <AppFinRecord>
         <AFinType>TNP</AFinType>
@@ -209,93 +201,180 @@ const isFormValid = () => {
       <LearnAimRef>60152680</LearnAimRef>
       <AimType>3</AimType>
       <AimSeqNumber>2</AimSeqNumber>
-      <LearnStartDate>${learner.StartDate.toISOString().split('T')[0]}</LearnStartDate>
-      <LearnPlanEndDate>${learner.EndDate.toISOString().split('T')[0]}</LearnPlanEndDate>
+      <LearnStartDate>${learner.StartDate}</LearnStartDate>
+      <LearnPlanEndDate>${learner.EndDate}</LearnPlanEndDate>
       <FundModel>36</FundModel>
       <ProgType>25</ProgType>
       <StdCode>${learner.StandardCode}</StdCode>
       <DelLocPostCode>WS15 3JQ</DelLocPostCode>
       <CompStatus>${learner.CompletionStatus}</CompStatus>
-      <LearnActEndDate>${learner.ActualEndDate.toISOString().split('T')[0]}</LearnActEndDate>
       <Outcome>1</Outcome>
-      <SWSupAimId>d2400c387a9d5647b260ecdb80867c55</SWSupAimId>
+      <AchDate>${learner.EndDate}</AchDate>
+      <LearningDeliveryFAM>
+        <LearnDelFAMType>SOF</LearnDelFAMType>
+        <LearnDelFAMCode>105</LearnDelFAMCode>
+      </LearningDeliveryFAM>
+      <LearningDeliveryFAM>
+        <LearnDelFAMType>RES</LearnDelFAMType>
+        <LearnDelFAMCode>1</LearnDelFAMCode>
+      </LearningDeliveryFAM>
+      <LearningDeliveryFAM>
+        <LearnDelFAMType>ACT</LearnDelFAMType>
+        <LearnDelFAMCode>${learner.LearningDeliveryFAMCode}</LearnDelFAMCode>
+        <LearnDelFAMDateFrom>${learner.StartDate}</LearnDelFAMDateFrom>
+        <LearnDelFAMDateTo>${learner.EndDate}</LearnDelFAMDateTo>
+      </LearningDeliveryFAM>
     </LearningDelivery>
   </Learner>`;
     });
 
     xml += `
 </Message>`;
-
-    const blob = new Blob([xml], { type: 'text/xml' });
+    
+    // Trigger XML download
+    const blob = new Blob([xml], { type: 'application/xml' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'learners.xml';
+    link.download = 'learner_data.xml';
     link.click();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Only generate XML if on the last learner
-    if (currentIndex === numLearners - 1) {
-      generateXML();
-    }
+  const handleDateChange = (field, day, month, year) => {
+    const date = `${year}-${month}-${day}`;
+    handleChange(field, date);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="learner-form">
-      <h3 className="learner-header">Learner {currentIndex + 1}</h3>
-      {Object.entries(learners[currentIndex]).map(([key, value]) => (
-        <div key={key} className="learner-section">
-          <label className="learner-label">
-            {key}:
-            {key === 'DateOfBirth' || key === 'StartDate' || key === 'EndDate' || key === 'ActualEndDate' ? (
-              <input
-                type="date"
-                className="learner-input"
-                value={value}
-                onChange={(e) => handleChange(key, e.target.value)}
-                required={key !== 'LearnRefNumber'} // Required unless it's LearnRefNumber
-              />
-            ) : key === 'ULN' ? (
-              <input
-                className="learner-input"
-                value={value}
-                onChange={(e) => handleChange(key, e.target.value)}
-                required
-                pattern="\\d{10}" // ULN must be 10 digits
-              />
-            ) : key === 'TNP1' || key === 'TNP2' ? (
-              <input
-                type="number"
-                className="learner-input"
-                value={value}
-                onChange={(e) => handleChange(key, e.target.value)}
-                required
-              />
-            ) : (
-              <input
-                className="learner-input"
-                value={value}
-                onChange={(e) => handleChange(key, e.target.value)}
-                required={key !== 'LearnRefNumber'} // Required unless it's LearnRefNumber
-              />
-            )}
-          </label>
+    <div className="learner-form">
+      <h1>Learner {currentIndex + 1} of {numLearners}</h1>
+      <form>
+        <label>ULN</label>
+        <input type="text" value={learners[currentIndex].ULN} onChange={(e) => handleChange('ULN', e.target.value)} />
+
+        <label>Family Name</label>
+        <input type="text" value={learners[currentIndex].FamilyName} onChange={(e) => handleChange('FamilyName', e.target.value)} />
+
+        <label>Given Names</label>
+        <input type="text" value={learners[currentIndex].GivenNames} onChange={(e) => handleChange('GivenNames', e.target.value)} />
+
+        <label>Date of Birth</label>
+        <div className='date-dropdowns'>
+          <select onChange={(e) => handleDateChange('DateOfBirth', e.target.value, document.getElementById('dob-month').value, document.getElementById('dob-year').value)} id="dob-day">
+            <option value="">Day</option>
+            {[...Array(31).keys()].map(day => (
+              <option key={day + 1} value={day + 1}>{day + 1}</option>
+            ))}
+          </select>
+          <select id="dob-month" onChange={(e) => handleDateChange('DateOfBirth', document.getElementById('dob-day').value, e.target.value, document.getElementById('dob-year').value)}>
+            <option value="">Month</option>
+            {[...Array(12).keys()].map(month => (
+              <option key={month + 1} value={month + 1}>{month + 1}</option>
+            ))}
+          </select>
+          <select id="dob-year" onChange={(e) => handleDateChange('DateOfBirth', document.getElementById('dob-day').value, document.getElementById('dob-month').value, e.target.value)}>
+            <option value="">Year</option>
+            {[...Array(51).keys()].map(year => (
+              <option key={year + 1975} value={year + 1950}>{year + 1950}</option>
+            ))}
+          </select>
         </div>
-      ))}
-  
-      <div className="button-container">
-        <button type="button" onClick={handlePrevious} disabled={currentIndex === 0} className="nav-button">
-          Previous
-        </button>
-        {currentIndex < numLearners - 1 ? (
-          <button type="button" onClick={handleNext} className="nav-button">Next</button>
-        ) : (
-          <button type="submit" className="generate-button">Generate XML</button>
+        <br></br>
+
+        <label>Start Date</label>
+        <div className="date-dropdowns">
+          <select onChange={(e) => handleDateChange('StartDate', e.target.value, document.getElementById('start-month').value, document.getElementById('start-year').value)} id="start-day">
+            <option value="">Day</option>
+            {[...Array(31).keys()].map(day => (
+              <option key={day + 1} value={day + 1}>{day + 1}</option>
+            ))}
+          </select>
+          <select id="start-month" onChange={(e) => handleDateChange('StartDate', document.getElementById('start-day').value, e.target.value, document.getElementById('start-year').value)}>
+            <option value="">Month</option>
+            {[...Array(12).keys()].map(month => (
+              <option key={month + 1} value={month + 1}>{month + 1}</option>
+            ))}
+          </select>
+          <select id="start-year" onChange={(e) => handleDateChange('StartDate', document.getElementById('start-day').value, document.getElementById('start-month').value, e.target.value)}>
+            <option value="">Year</option>
+            {[...Array(21).keys()].map(year => (
+              <option key={year + 2020} value={year + 2020}>{year + 2020}</option>
+            ))}
+          </select>
+        </div>
+        <br></br>
+
+        <label>End Date</label>
+        <div className="date-dropdowns">
+          <select onChange={(e) => handleDateChange('EndDate', e.target.value, document.getElementById('end-month').value, document.getElementById('end-year').value)} id="end-day">
+            <option value="">Day</option>
+            {[...Array(31).keys()].map(day => (
+              <option key={day + 1} value={day + 1}>{day + 1}</option>
+            ))}
+          </select>
+          <select id="end-month" onChange={(e) => handleDateChange('EndDate', document.getElementById('end-day').value, e.target.value, document.getElementById('end-year').value)}>
+            <option value="">Month</option>
+            {[...Array(12).keys()].map(month => (
+              <option key={month + 1} value={month + 1}>{month + 1}</option>
+            ))}
+          </select>
+          <select id="end-year" onChange={(e) => handleDateChange('EndDate', document.getElementById('end-day').value, document.getElementById('end-month').value, e.target.value)}>
+            <option value="">Year</option>
+            {[...Array(21).keys()].map(year => (
+              <option key={year + 2020} value={year + 2020}>{year + 2020}</option>
+            ))}
+          </select>
+        </div>
+        <br></br>
+
+        <label>Standard Code</label>
+        <input type="text" value={learners[currentIndex].StandardCode} onChange={(e) => handleChange('StandardCode', e.target.value)} />
+
+        <label>Completion Status</label>
+        <input type="text" value={learners[currentIndex].CompletionStatus} onChange={(e) => handleChange('CompletionStatus', e.target.value)} />
+
+        <label>Outcome</label>
+        <input type="text" value={learners[currentIndex].Outcome} onChange={(e) => handleChange('Outcome', e.target.value)} />
+
+        <label>Learning Delivery FAM Code</label>
+        <input type="text" value={learners[currentIndex].LearningDeliveryFAMCode} onChange={(e) => handleChange('LearningDeliveryFAMCode', e.target.value)} />
+
+        <label>TNP1</label>
+        <input type="text" value={learners[currentIndex].TNP1} onChange={(e) => handleChange('TNP1', e.target.value)} />
+
+        <label>TNP2</label>
+        <input type="text" value={learners[currentIndex].TNP2} onChange={(e) => handleChange('TNP2', e.target.value)} />
+
+        <label>Actual End Date</label>
+        <div className="date-dropdowns">
+          <select onChange={(e) => handleDateChange('ActualEndDate', e.target.value, document.getElementById('actual-end-month').value, document.getElementById('actual-end-year').value)} id="actual-end-day">
+            <option value="">Day</option>
+            {[...Array(31).keys()].map(day => (
+              <option key={day + 1} value={day + 1}>{day + 1}</option>
+            ))}
+          </select>
+          <select id="actual-end-month" onChange={(e) => handleDateChange('ActualEndDate', document.getElementById('actual-end-day').value, e.target.value, document.getElementById('actual-end-year').value)}>
+            <option value="">Month</option>
+            {[...Array(12).keys()].map(month => (
+              <option key={month + 1} value={month + 1}>{month + 1}</option>
+            ))}
+          </select>
+          <select id="actual-end-year" onChange={(e) => handleDateChange('ActualEndDate', document.getElementById('actual-end-day').value, document.getElementById('actual-end-month').value, e.target.value)}>
+            <option value="">Year</option>
+            {[...Array(21).keys()].map(year => (
+              <option key={year + 2020} value={year + 2020}>{year + 2020}</option>
+            ))}
+          </select>
+        </div>
+        <br></br>
+
+        <button type="button" onClick={handlePrevious} disabled={currentIndex === 0}>Previous</button>
+        <button type="button" onClick={handleNext} disabled={currentIndex >= numLearners - 1}>Next</button>
+        {currentIndex === numLearners - 1 && (
+          <button type="button" onClick={generateXML}>Generate XML</button>
         )}
-      </div>
-    </form>
-  );  
+      </form>
+    </div>
+  );
 };
 
 export default LearnerDetails;

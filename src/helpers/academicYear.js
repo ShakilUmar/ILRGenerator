@@ -1,9 +1,22 @@
 function calculateMonthDifference(startDate, endDate) {
-    let monthDifference = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  }
 
-    if (endDate.getDate() < startDate.getDate()) {
-        monthDifference--;
+  function convertAcademicYear(input) {
+    const baseYear = parseInt(input.substring(0, 2), 10);
+  
+    if (isNaN(baseYear)) {
+      throw new Error("The first two characters must be numeric.");
     }
+  
+    const startYear = 2000 + baseYear;
+    const endYear = startYear + 1;
+  
+    return `${startYear}-${endYear.toString().substring(2)}`;
+  }
+  
 
-    return monthDifference;
-}
+
+  export { convertAcademicYear, calculateMonthDifference };
