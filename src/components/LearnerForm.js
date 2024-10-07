@@ -6,7 +6,7 @@ import { convertAcademicYear, calculateMonthDifference } from '../helpers/academ
 const LearnerDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { UKPRN, academicYear, numLearners } = location.state;
+  const { UKPRN, academicYear, collectionPeriod, numLearners } = location.state;
 
   const [learners, setLearners] = useState(
     Array.from({ length: numLearners }, () => ({
@@ -31,9 +31,13 @@ const LearnerDetails = () => {
 
   const handleChange = (field, value) => {
     const updatedLearners = [...learners];
-    updatedLearners[currentIndex][field] = value;
+    updatedLearners[currentIndex] = {
+      ...updatedLearners[currentIndex],
+      [field]: value
+    };
     setLearners(updatedLearners);
   };
+  
 
   const isFormValid = () => {
     const {
@@ -90,14 +94,25 @@ const LearnerDetails = () => {
     }
   }; 
 
+  const addYearsToDate = (date, yearsToAdd) => {
+    date.setFullYear(date.getFullYear() + yearsToAdd);   
+    return date.toISOString().split('T')[0];
+  };
+
+  const addDaysToDate = (date, daysToAdd) => {
+    let validDate = new Date(date);
+    validDate.setDate(validDate.getDate() + daysToAdd)
+    return validDate.toISOString().split('T')[0];
+  };
+
   const generateXML = () => {
-    let xml = `<?xml version="1.0" encoding="utf-8"?>
-<Message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:test="ESFA/ILR/${convertAcademicYear(academicYear)}">
+    let xml = `<?xml version="1.0"?>
+<Message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="ESFA/ILR/${convertAcademicYear(academicYear)}">
   <Header>
     <CollectionDetails>
       <Collection>ILR</Collection>
       <Year>${academicYear}</Year>
-      <FilePreparationDate>${new Date().toISOString().split('T')[0]}</FilePreparationDate>
+      <FilePreparationDate>${addYearsToDate(new Date(), 3)}</FilePreparationDate>
     </CollectionDetails>
     <Source>
       <ProtectiveMarking>OFFICIAL-SENSITIVE-Personal</ProtectiveMarking>
@@ -161,10 +176,10 @@ const LearnerDetails = () => {
       <StdCode>${learner.StandardCode}</StdCode>
       <DelLocPostCode>WS15 3JQ</DelLocPostCode>
       <EPAOrgID>EPA0061</EPAOrgID>
-      <CompStatus>${learner.CompletionStatus}</CompStatus>
+      <CompStatus>${learner.CompletionStatus}</CompStatus> 
       <LearnActEndDate>${learner.ActualEndDate}</LearnActEndDate>
-      <Outcome>1</Outcome>
-      <AchDate>${learner.EndDate}</AchDate>
+      <Outcome>${learner.Outcome}</Outcome>
+      <AchDate>${addDaysToDate(learner.ActualEndDate, 8)}</AchDate>
       <SWSupAimId>0c29a200c9d14749a90ce04a5b202ca6</SWSupAimId>
       <LearningDeliveryFAM>
         <LearnDelFAMType>SOF</LearnDelFAMType>
@@ -178,24 +193,24 @@ const LearnerDetails = () => {
         <LearnDelFAMType>ACT</LearnDelFAMType>
         <LearnDelFAMCode>${learner.LearningDeliveryFAMCode}</LearnDelFAMCode>
         <LearnDelFAMDateFrom>${learner.StartDate}</LearnDelFAMDateFrom>
-        <LearnDelFAMDateTo>${learner.EndDate}</LearnDelFAMDateTo>
+        <LearnDelFAMDateTo>${addDaysToDate(learner.ActualEndDate, 8)}</LearnDelFAMDateTo>
       </LearningDeliveryFAM>
       <AppFinRecord>
         <AFinType>TNP</AFinType>
         <AFinCode>1</AFinCode>
-        <AFinDate>2023-08-15</AFinDate>
+        <AFinDate>${learner.StartDate}</AFinDate>
         <AFinAmount>${learner.TNP1}</AFinAmount>
       </AppFinRecord>
       <AppFinRecord>
         <AFinType>PMR</AFinType>
         <AFinCode>1</AFinCode>
-        <AFinDate>2023-08-15</AFinDate>
+        <AFinDate>${learner.StartDate}</AFinDate>
         <AFinAmount>${learner.TNP1 / calculateMonthDifference(learner.StartDate, learner.EndDate)}</AFinAmount>
       </AppFinRecord>
       <AppFinRecord>
         <AFinType>TNP</AFinType>
         <AFinCode>2</AFinCode>
-        <AFinDate>2023-08-15</AFinDate>
+        <AFinDate>${learner.StartDate}</AFinDate>
         <AFinAmount>${learner.TNP2}</AFinAmount>
       </AppFinRecord>
     </LearningDelivery>
@@ -210,21 +225,12 @@ const LearnerDetails = () => {
       <StdCode>${learner.StandardCode}</StdCode>
       <DelLocPostCode>WS15 3JQ</DelLocPostCode>
       <CompStatus>${learner.CompletionStatus}</CompStatus>
-      <Outcome>1</Outcome>
-      <AchDate>${learner.EndDate}</AchDate>
+      <LearnActEndDate>${learner.ActualEndDate}</LearnActEndDate>
+      <Outcome>${learner.Outcome}</Outcome>
+      <SWSupAimId>d2400c387a9d5647b260ecdb80867c55</SWSupAimId>
       <LearningDeliveryFAM>
         <LearnDelFAMType>SOF</LearnDelFAMType>
         <LearnDelFAMCode>105</LearnDelFAMCode>
-      </LearningDeliveryFAM>
-      <LearningDeliveryFAM>
-        <LearnDelFAMType>RES</LearnDelFAMType>
-        <LearnDelFAMCode>1</LearnDelFAMCode>
-      </LearningDeliveryFAM>
-      <LearningDeliveryFAM>
-        <LearnDelFAMType>ACT</LearnDelFAMType>
-        <LearnDelFAMCode>${learner.LearningDeliveryFAMCode}</LearnDelFAMCode>
-        <LearnDelFAMDateFrom>${learner.StartDate}</LearnDelFAMDateFrom>
-        <LearnDelFAMDateTo>${learner.EndDate}</LearnDelFAMDateTo>
       </LearningDeliveryFAM>
     </LearningDelivery>
   </Learner>`;
@@ -233,7 +239,6 @@ const LearnerDetails = () => {
     xml += `
 </Message>`;
     
-    // Trigger XML download
     const blob = new Blob([xml], { type: 'application/xml' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -242,7 +247,7 @@ const LearnerDetails = () => {
     const formattedDate = now.toISOString().split('T')[0].replace(/-/g, ''); // Format as 'yyyyMMdd'
     const formattedTime = now.toTimeString().split(' ')[0].replace(/:/g, ''); // Format as 'HHmmss'
 
-    link.download = `ILR-${UKPRN}-${academicYear}-${formattedDate}-${formattedTime}-1.xml`;
+    link.download = `ILR-${UKPRN}-${academicYear}-${formattedDate}-${formattedTime}-${collectionPeriod}.xml`;  
     link.click();
 
     navigate('/');
@@ -297,7 +302,7 @@ const LearnerDetails = () => {
           <select id="dob-year" onChange={(e) => handleDateChange('DateOfBirth', document.getElementById('dob-day').value, document.getElementById('dob-month').value, e.target.value)}>
             <option value="">Year</option>
             {[...Array(51).keys()].map(year => (
-              <option key={year + 1975} value={year + 1950}>{year + 1950}</option>
+              <option key={year + 1975} value={year + 1975}>{year + 1975}</option>
             ))}
           </select>
         </div>
@@ -353,18 +358,31 @@ const LearnerDetails = () => {
         <input type="text" value={learners[currentIndex].StandardCode} onChange={(e) => handleChange('StandardCode', e.target.value)} />
 
         <label>Completion Status</label>
-        <input type="text" value={learners[currentIndex].CompletionStatus} onChange={(e) => handleChange('CompletionStatus', e.target.value)} />
+        <select value={learners[currentIndex].CompletionStatus} onChange={(e) => handleChange('CompletionStatus', e.target.value)}>
+          <option value="1">1 - The learner is continuing or intending to continue the learning</option>
+          <option value="2">2 - The learner has completed the learning</option>
+          <option value="3">3 - The learner has withdrawn from the learning</option>
+          <option value="6">6 - Learner has temporarily withdrawn from the aim</option>
+          </select>
 
         <label>Outcome</label>
-        <input type="text" value={learners[currentIndex].Outcome} onChange={(e) => handleChange('Outcome', e.target.value)} />
+        <select value={learners[currentIndex].Outcome} onChange={(e) => handleChange('Outcome', e.target.value)}>
+          <option value="1">1 - Achieved</option>
+          <option value="2">2 - Partial achievement</option>
+          <option value="3">3 - No achievement</option>
+          <option value="8">8 - Learning activities are complete but the outcome is not yet known</option>
+          </select>
 
-        <label>Learning Delivery FAM Code</label>
-        <input type="text" value={learners[currentIndex].LearningDeliveryFAMCode} onChange={(e) => handleChange('LearningDeliveryFAMCode', e.target.value)} />
+        <label>Learning Delivery FAM Code (ACT Type) </label>
+        <select value={learners[currentIndex].LearningDeliveryFAMCode} onChange={(e) => handleChange('LearningDeliveryFAMCode', e.target.value)}>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          </select>
 
-        <label>TNP1</label>
+        <label>TNP1 Amount</label>
         <input type="text" value={learners[currentIndex].TNP1} onChange={(e) => handleChange('TNP1', e.target.value)} />
 
-        <label>TNP2</label>
+        <label>TNP2 Amount</label>
         <input type="text" value={learners[currentIndex].TNP2} onChange={(e) => handleChange('TNP2', e.target.value)} />
 
         <label>Actual End Date</label>
