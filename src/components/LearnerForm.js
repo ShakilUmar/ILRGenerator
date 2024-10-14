@@ -37,7 +37,6 @@ const LearnerDetails = () => {
     };
     setLearners(updatedLearners);
   };
-  
 
   const isFormValid = () => {
     const {
@@ -56,26 +55,32 @@ const LearnerDetails = () => {
       TNP2,
       ActualEndDate
     } = learners[currentIndex];
-
-    const isULNValid = /^\d{10}$/.test(ULN); // Check for 10 digit numeric ULN
-
-    return (
-      LearnRefNumber &&
-      isULNValid && // Ensure ULN is valid
-      FamilyName && 
-      GivenNames && 
-      DateOfBirth &&
-      StartDate &&
-      EndDate &&
-      StandardCode &&
-      CompletionStatus &&
-      Outcome &&
-      LearningDeliveryFAMCode &&
-      TNP1 &&
-      TNP2 &&
-      ActualEndDate
-    );
+  
+    const errors = [];
+  
+    if (!LearnRefNumber) errors.push('LearnRefNumber');
+    if (!/^\d{10}$/.test(ULN)) errors.push('ULN (must be 10 digits)');
+    if (!FamilyName) errors.push('Family Name');
+    if (!GivenNames) errors.push('Given Names');
+    if (!DateOfBirth) errors.push('Date of Birth');
+    if (!StartDate) errors.push('Start Date');
+    if (!EndDate) errors.push('End Date');
+    if (!StandardCode) errors.push('Standard Code');
+    if (!CompletionStatus) errors.push('Completion Status');
+    if (!Outcome) errors.push('Outcome');
+    if (!LearningDeliveryFAMCode) errors.push('Learning Delivery FAM Code');
+    if (!TNP1) errors.push('TNP1');
+    if (!TNP2) errors.push('TNP2');
+    if (!ActualEndDate) errors.push('Actual End Date');
+  
+    if (errors.length > 0) {
+      alert(`Please correct the following fields: ${errors.join(', ')}`);
+      return false;
+    }
+  
+    return true;
   };
+  
 
   const handleNext = () => {
     if (!isFormValid()) {
@@ -176,10 +181,16 @@ const LearnerDetails = () => {
       <StdCode>${learner.StandardCode}</StdCode>
       <DelLocPostCode>WS15 3JQ</DelLocPostCode>
       <EPAOrgID>EPA0061</EPAOrgID>
-      <CompStatus>${learner.CompletionStatus}</CompStatus> 
+      <CompStatus>${learner.CompletionStatus}</CompStatus> `;
+
+      if (learner.CompletionStatus == 2) {
+         xml += `
       <LearnActEndDate>${learner.ActualEndDate}</LearnActEndDate>
       <Outcome>${learner.Outcome}</Outcome>
-      <AchDate>${addDaysToDate(learner.ActualEndDate, 8)}</AchDate>
+      <AchDate>${addDaysToDate(learner.ActualEndDate, 8)}</AchDate> `;
+      }
+
+      xml += ` 
       <SWSupAimId>0c29a200c9d14749a90ce04a5b202ca6</SWSupAimId>
       <LearningDeliveryFAM>
         <LearnDelFAMType>SOF</LearnDelFAMType>
@@ -192,8 +203,14 @@ const LearnerDetails = () => {
       <LearningDeliveryFAM>
         <LearnDelFAMType>ACT</LearnDelFAMType>
         <LearnDelFAMCode>${learner.LearningDeliveryFAMCode}</LearnDelFAMCode>
-        <LearnDelFAMDateFrom>${learner.StartDate}</LearnDelFAMDateFrom>
-        <LearnDelFAMDateTo>${addDaysToDate(learner.ActualEndDate, 8)}</LearnDelFAMDateTo>
+        <LearnDelFAMDateFrom>${learner.StartDate}</LearnDelFAMDateFrom>  `;
+
+        if (learner.CompletionStatus == 2) {
+           xml += `
+        <LearnDelFAMDateTo>${addDaysToDate(learner.ActualEndDate, 8)}</LearnDelFAMDateTo> `;
+        }
+
+       xml += `   
       </LearningDeliveryFAM>
       <AppFinRecord>
         <AFinType>TNP</AFinType>
@@ -224,8 +241,14 @@ const LearnerDetails = () => {
       <ProgType>25</ProgType>
       <StdCode>${learner.StandardCode}</StdCode>
       <DelLocPostCode>WS15 3JQ</DelLocPostCode>
-      <CompStatus>${learner.CompletionStatus}</CompStatus>
-      <LearnActEndDate>${learner.ActualEndDate}</LearnActEndDate>
+      <CompStatus>${learner.CompletionStatus}</CompStatus> `;
+
+      if (learner.CompletionStatus ==2) {
+      xml += `  
+      <LearnActEndDate>${learner.ActualEndDate}</LearnActEndDate>  `;
+      }
+
+       xml += `
       <Outcome>${learner.Outcome}</Outcome>
       <SWSupAimId>d2400c387a9d5647b260ecdb80867c55</SWSupAimId>
       <LearningDeliveryFAM>
