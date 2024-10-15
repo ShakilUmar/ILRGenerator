@@ -222,7 +222,7 @@ const LearnerDetails = () => {
         <AFinType>PMR</AFinType>
         <AFinCode>1</AFinCode>
         <AFinDate>${learner.StartDate}</AFinDate>
-        <AFinAmount>${learner.TNP1 / calculateMonthDifference(learner.StartDate, learner.EndDate)}</AFinAmount>
+        <AFinAmount>${Math.round(learner.TNP1 / calculateMonthDifference(learner.StartDate, learner.EndDate))}</AFinAmount>
       </AppFinRecord>
       <AppFinRecord>
         <AFinType>TNP</AFinType>
