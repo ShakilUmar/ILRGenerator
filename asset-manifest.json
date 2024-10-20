@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/ShakilUmar/ILRGenerator.git/static/css/main.a630d007.css",
+    "main.js": "/ShakilUmar/ILRGenerator.git/static/js/main.68a05907.js",
+    "index.html": "/ShakilUmar/ILRGenerator.git/index.html",
+    "main.a630d007.css.map": "/ShakilUmar/ILRGenerator.git/static/css/main.a630d007.css.map",
+    "main.68a05907.js.map": "/ShakilUmar/ILRGenerator.git/static/js/main.68a05907.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a630d007.css",
+    "static/js/main.68a05907.js"
+  ]
+}
