@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './LearnerForm.css'; 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { convertAcademicYear, calculateMonthDifference } from '../helpers/academicYear';
@@ -12,15 +12,13 @@ const LearnerDetails = () => {
     Array.from({ length: numLearners }, () => ({
       LearnRefNumber: '',
       ULN: '',
-      FamilyName: '',
-      GivenNames: '',
       DateOfBirth: '',
       StartDate: '',
       EndDate: '',
       StandardCode: '',
-      CompletionStatus: '',
-      Outcome: '',
-      LearningDeliveryFAMCode: '',
+      CompletionStatus: '1',
+      Outcome: '1',
+      LearningDeliveryFAMCode: '1',
       TNP1: '',
       TNP2: '',
       ActualEndDate: ''
@@ -28,6 +26,33 @@ const LearnerDetails = () => {
   );
   
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    // Reset the date values when currentIndex changes
+    if (document.getElementById('dob-day')) {
+      document.getElementById('dob-day').value = "";
+      document.getElementById('dob-month').value = "";
+      document.getElementById('dob-year').value = "";
+    }
+
+    if (document.getElementById('start-day')) {
+      document.getElementById('start-day').value = "";
+      document.getElementById('start-month').value = "";
+      document.getElementById('start-year').value = "";
+    }
+
+    if (document.getElementById('end-day')) {
+      document.getElementById('end-day').value = "";
+      document.getElementById('end-month').value = "";
+      document.getElementById('end-year').value = "";
+    }
+
+    if (document.getElementById('actual-end-day')) {
+      document.getElementById('actual-end-day').value = "";
+      document.getElementById('actual-end-month').value = "";
+      document.getElementById('actual-end-year').value = "";
+    }
+  }, [currentIndex]);
 
   const handleChange = (field, value) => {
     const updatedLearners = [...learners];
@@ -42,8 +67,6 @@ const LearnerDetails = () => {
     const {
       LearnRefNumber,
       ULN,
-      FamilyName,
-      GivenNames,
       DateOfBirth,
       StartDate,
       EndDate,
@@ -60,8 +83,6 @@ const LearnerDetails = () => {
   
     if (!LearnRefNumber) errors.push('LearnRefNumber');
     if (!/^\d{10}$/.test(ULN)) errors.push('ULN (must be 10 digits)');
-    if (!FamilyName) errors.push('Family Name');
-    if (!GivenNames) errors.push('Given Names');
     if (!DateOfBirth) errors.push('Date of Birth');
     if (!StartDate) errors.push('Start Date');
     if (!EndDate) errors.push('End Date');
@@ -138,8 +159,8 @@ const LearnerDetails = () => {
   <Learner>
     <LearnRefNumber>${learner.LearnRefNumber}</LearnRefNumber>
     <ULN>${learner.ULN}</ULN>
-    <FamilyName>${learner.FamilyName}</FamilyName>
-    <GivenNames>${learner.GivenNames}</GivenNames>
+    <FamilyName>Sméth</FamilyName>
+    <GivenNames>Mary Jane</GivenNames>
     <DateOfBirth>${learner.DateOfBirth}</DateOfBirth>
     <Ethnicity>31</Ethnicity>
     <Sex>F</Sex>
@@ -301,12 +322,6 @@ const LearnerDetails = () => {
 
         <label>ULN</label>
         <input type="text" value={learners[currentIndex].ULN} onChange={(e) => handleChange('ULN', e.target.value)} />
-
-        <label>Family Name</label>
-        <input type="text" value={learners[currentIndex].FamilyName} onChange={(e) => handleChange('FamilyName', e.target.value)} />
-
-        <label>Given Names</label>
-        <input type="text" value={learners[currentIndex].GivenNames} onChange={(e) => handleChange('GivenNames', e.target.value)} />
 
         <label>Date of Birth</label>
         <div className='date-dropdowns'>
