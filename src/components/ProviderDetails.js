@@ -20,10 +20,10 @@ const ProviderDetails = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (UKPRN.length === 8 && numLearners >= 1 && numLearners <= 10) {
+    if (UKPRN.length === 8 && numLearners >= 1 && numLearners <= 15) {
       navigate('/learners', { state: { UKPRN, academicYear, collectionPeriod, numLearners } });
     } else {
-      alert('Please ensure the UKPRN is 8 digits and the number of learners is between 1 and 10.');
+      alert('Please ensure the UKPRN is 8 digits and the number of learners is between 1 and 15.');
     }
   };
 
@@ -90,14 +90,14 @@ const ProviderDetails = () => {
 
       <div className="learner-section">
         <label className="learner-label">
-          Number of learners in the ILR (1-10)
+          Number of learners in the ILR (1-15)
           <input
             type="number"
             className="learner-input"
             value={numLearners}
-            onChange={(e) => setNumLearners(Math.max(1, Math.min(10, e.target.value)))}
+            onChange={(e) => setNumLearners(Math.max(1, Math.min(15, e.target.value)))}
             min="1"
-            max="10"
+            max="15"
             required
           />
         </label>
